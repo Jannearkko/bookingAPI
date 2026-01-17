@@ -1119,7 +1119,7 @@ If later you add SQL and use an ORM or parameterized queries → still safe.
 ```
 **2nd prompt:**
 ```
-Would be wise to move all the exception messages to an external text file and name them properly?
+Would it be wise to move all the exception messages to an external text file and name them properly?
 ```
 **Answer:**
 ```
@@ -1484,4 +1484,51 @@ def test_list_all_rooms_includes_all_5_keys():
     for room in ALLOWED_ROOMS:
         assert room in data
         assert isinstance(data[room], list)
+```
+**4th prompt:**
+```
+I added a RedirectResponse to root /-path to redirect to /docs. Next, create an exception handler for all other possible routes. It should convert the default 404 error into the new ApiError format.
+```
+**Answer:**
+```
+1) Add a unified 404 fallback for unknown routes
+    errors.py (add one error)
+
+    from fastapi import status
+
+    ROUTE_NOT_FOUND = ApiError(
+        code="ROUTE_NOT_FOUND",
+        message="Route not found.",
+        http_status=status.HTTP_404_NOT_FOUND,
+    )
+
+main.py (add a global StarletteHTTPException handler)
+
+This converts FastAPI’s default 404 detail string "Not Found" into your ApiError format.
+
+from fastapi import Request
+from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+from errors import ROUTE_NOT_FOUND  # make sure this exists in errors.py
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    # Keep your ApiError-shaped errors as-is
+    if isinstance(exc.detail, dict) and "code" in exc.detail and "message" in exc.detail:
+        return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+
+    # Convert unknown route 404s to ApiError shape
+    if exc.status_code == 404:
+        return JSONResponse(
+            status_code=404,
+            content={"detail": {"code": ROUTE_NOT_FOUND.code, "message": ROUTE_NOT_FOUND.message}},
+        )
+
+    # Fallback for any other non-ApIError HTTPException
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": {"code": "HTTP_EXCEPTION", "message": str(exc.detail)}},
+    )
 ```
