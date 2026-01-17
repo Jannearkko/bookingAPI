@@ -36,4 +36,4 @@ Kolmanneksi muutin kirjoitetut testit huomioimaan tämän uuden ApiError-luokan 
 
 Vaiheessa 2 olin epävarma oliko FastAPI:n rajapinnat jo valmiiksi parametrisoituja ja päädyin kysymään sitä tekoälyltä. Olivathan ne. Tämä siitä syystä, että oikeastaan ainoa pelko, jota kannan ohjelmoinnissa mukanani on se, että onko ohjelmani tietoturvallinen. 
 
-Viimeisenä muutoksena lisäsin ns. fallback-reitin /docs-endpointtiin kaikille muille reiteille, joita ei määritetty rajapinnassa sekä tekoälyn avustamana lisäsin myös poikkeuksen hallinnan kaikille näille reiteille. Tämäkin vähentää muun muassa hyökkäyspinta-alaa kun API uudelleenohjaa automaattisesti kaikki väärät reitit.
+Viimeisenä muutoksena lisäsin uudelleenohjauksen /-reitistä /docs-reittiin sekä poikkeuksen hallinnan kaikille muille reiteille, joita ei ole implementoitu rajapintaan. Tämä mielestäni vähentää huomattavasti potentiaalista hyökkäyspinta-alaa rajapinnassa. Tästä pyysin tekoälyltä tuon poikkeuksen hallinnan.
