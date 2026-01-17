@@ -83,6 +83,8 @@ def create_booking(
         if str(e) == "booking_overlaps":
             raise_api_error(BOOKING_OVERLAPS)
         raise_api_error(BOOKING_CONFLICT)
+        
+    return BookingResponse(**booking.__dict__)
 
 
 @app.delete(
