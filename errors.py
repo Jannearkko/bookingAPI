@@ -86,3 +86,13 @@ BOOKING_NOT_FOUND = ApiError(
     message="Booking not found.",
     http_status=status.HTTP_404_NOT_FOUND,
 )
+
+# ----------------------------
+# Route not found (404)
+# ----------------------------
+
+ROUTE_NOT_FOUND = ApiError(
+    code="ROUTE_NOT_FOUND",
+    message="Route not found.",
+    http_status=status.HTTP_404_NOT_FOUND,
+)

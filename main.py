@@ -1,7 +1,9 @@
 from __future__ import annotations
 from uuid import UUID
-from fastapi import FastAPI, HTTPException, Path, status
+from fastapi import FastAPI, HTTPException, Path, status, Request
 from models import BookingCreateRequest, BookingResponse
+from fastapi.responses import JSONResponse, RedirectResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from InMemoryDatabase import InMemoryBookingStore
 from errors import (
     BOOKING_START_AFTER_END,
@@ -11,7 +13,8 @@ from errors import (
     BOOKING_CONFLICT,
     BOOKING_NOT_FOUND,
     raise_api_error,
-    ROOM_NOT_FOUND
+    ROOM_NOT_FOUND,
+    ROUTE_NOT_FOUND
 )
 
 
@@ -46,6 +49,10 @@ app = FastAPI(
         "- In-memory only: restarting the server clears all bookings."
     ),
 )
+# default /-path, redirect to /docs
+@app.get("/", include_in_schema=False)
+def root():
+    return RedirectResponse(url="/docs")
 
 # POST-endpoint to book a room
 @app.post(
@@ -83,7 +90,7 @@ def create_booking(
         if str(e) == "booking_overlaps":
             raise_api_error(BOOKING_OVERLAPS)
         raise_api_error(BOOKING_CONFLICT)
-        
+
     return BookingResponse(**booking.__dict__)
 
 
@@ -125,3 +132,24 @@ def list_room_bookings(
 def list_all_rooms_bookings():
     all_rooms = store.list_all_rooms()
     return {room_id: [BookingResponse(**b.__dict__) for b in bookings] for room_id, bookings in all_rooms.items()}
+
+
+# Exception handler for none of the above routes
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    if isinstance(exc.detail, dict) and "code" in exc.detail and "message" in exc.detail:
+        return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+
+    # Transform framework 404s (unknown paths) to ApiError shape
+    if exc.status_code == 404:
+        return JSONResponse(
+            status_code=ROUTE_NOT_FOUND.http_status,
+            content={"detail": {"code": ROUTE_NOT_FOUND.code, "message": ROUTE_NOT_FOUND.message}},
+        )
+
+    # Fallback for any other HTTPException raised without ApiError format
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": {"code": "HTTP_EXCEPTION", "message": str(exc.detail)}},
+    )

@@ -199,3 +199,7 @@ def test_list_all_rooms_includes_all_5_keys():
     for room in ALLOWED_ROOMS:
         assert room in data
         assert isinstance(data[room], list)
+
+def test_404_unknown_route_uses_api_error_shape():
+    resp = client.get("/this-route-does-not-exist")
+    assert_api_error(resp, 404, "ROUTE_NOT_FOUND", message_contains="not found")
