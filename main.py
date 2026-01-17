@@ -3,6 +3,17 @@ from uuid import UUID
 from fastapi import FastAPI, HTTPException, Path, status
 from models import BookingCreateRequest, BookingResponse
 from InMemoryDatabase import InMemoryBookingStore
+from errors import (
+    BOOKING_START_AFTER_END,
+    BOOKING_IN_PAST,
+    BOOKING_INVALID_REQUEST,
+    BOOKING_OVERLAPS,
+    BOOKING_CONFLICT,
+    BOOKING_NOT_FOUND,
+    raise_api_error,
+    ROOM_NOT_FOUND
+)
+
 
 # ----------------------------
 # Room configuration (Phase 1)
@@ -11,10 +22,7 @@ ALLOWED_ROOMS = ["alpha", "bravo", "charlie", "delta", "echo"]
 
 def _validate_room(room_id: str) -> None:
     if room_id not in ALLOWED_ROOMS:
-        raise HTTPException(
-            status_code=404,
-            detail={"message": "Room not found.", "allowed_rooms": ALLOWED_ROOMS},
-        )
+        raise_api_error(ROOM_NOT_FOUND, extra={"allowed_rooms": ALLOWED_ROOMS})
 
 # Calling the InMemoryBookingStore-constructor and passing the ALLOWED_ROOMS as parameter
 store = InMemoryBookingStore(ALLOWED_ROOMS)
@@ -39,7 +47,7 @@ app = FastAPI(
     ),
 )
 
-
+# POST-endpoint to book a room
 @app.post(
     "/rooms/{room_id}/bookings",
     response_model=BookingResponse,
@@ -54,28 +62,27 @@ def create_booking(
     ),
     payload: BookingCreateRequest = ...,
 ):
-    _validate_room(room_id)
+    _validate_room(room_id) # Validate "room" exists in ALLOWED_ROOMS
 
     try:
         booking = store.create_booking(
-            room_id=room_id,
-            start=payload.start,
-            end=payload.end,
-            title=payload.title,
-            booker=payload.booker,
+            room_id=room_id, # str
+            start=payload.start, # datetime
+            end=payload.end, # datetime
+            title=payload.title, # Optional[str]
+            booker=payload.booker, # Booker
         )
     except ValueError as e:
         if str(e) == "start_must_be_before_end":
-            raise HTTPException(status_code=400, detail="Start time must be before end time.")
+            raise_api_error(BOOKING_START_AFTER_END)
         if str(e) == "cannot_book_in_the_past":
-            raise HTTPException(status_code=400, detail="You can't book a room in the past.")
-        raise HTTPException(status_code=400, detail="Invalid booking request.")
+            raise_api_error(BOOKING_IN_PAST)
+        raise_api_error(BOOKING_INVALID_REQUEST)
+
     except RuntimeError as e:
         if str(e) == "booking_overlaps":
-            raise HTTPException(status_code=409, detail="Booking overlaps with an existing booking.")
-        raise HTTPException(status_code=409, detail="Booking conflict.")
-
-    return BookingResponse(**booking.__dict__)
+            raise_api_error(BOOKING_OVERLAPS)
+        raise_api_error(BOOKING_CONFLICT)
 
 
 @app.delete(
@@ -87,7 +94,7 @@ def delete_booking(booking_id: UUID):
     try:
         store.delete_booking(booking_id)
     except KeyError:
-        raise HTTPException(status_code=404, detail="Booking not found.")
+        raise_api_error(BOOKING_NOT_FOUND)
     return None
 
 
