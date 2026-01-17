@@ -8,7 +8,7 @@ Aloitin kertomalla sovellukselta vaadittavan teknologian, jossa päädyin Python
 
 Seuraavaksi kerroin tekoälylle mitä ominaisuuksia rajapinnalla tulee olla sekä logiikka, jota tulee noudattaa. Nämä olivat käytännössä suoria kopioita tehtävänannosta.
 
-Koska tehtävä oli yksinkertainen, ChatGPT:ltä tuli heti ensimmäisen promptin jälkeen toimiva kokonaisuus jo ulos. Testasin ominaisuudet ja logiikan pääpiirteittäin jonka jälkeen kehotin tekoälyä pienentämään kokoushuone-avaruutta 100:sta huoneesta viiteen ja lisäämään Swagger UI:n /docs-rajapinnalle informatiivisemmat kuvaukset sekä raja-arvot, joita käyttäjän tulee noudattaa (Toimintalogiikka)
+Koska tehtävä oli yksinkertainen, ChatGPT:ltä tuli heti ensimmäisen promptin jälkeen toimiva kokonaisuus jo ulos. Testasin ominaisuudet ja logiikan pääpiirteittäin jonka jälkeen kehotin tekoälyä pienentämään kokoushuone-avaruutta 100:sta huoneesta viiteen ja lisäämään Swagger UI:n /docs-rajapinnalle informatiivisemmat kuvaukset sekä raja-arvot, joita käyttäjän tulee noudattaa (Toimintalogiikka).
 
 Tässäkin ChatGPT onnistui hyvin ja antoi viidelle kokoushuoneelle nimet: "alpha", "bravo", "charlie", "delta" ja "echo". Myöskin kuvaukset ja toimintalogiikan raja-arvot olivat nyt paljon ymmärrettävämmät Swagger UI:ssa.
 
@@ -18,7 +18,9 @@ Lopuksi kerroin, että rajapinta sekä sen kaikki ominaisuudet ja logiikka toimi
 
 Lopulta ajoin testit läpi, jokainen testi onnistui ja mielestäni se merkkasi vaiheen 1 loppua. 
 
-Kaiken kaikkiaan ChatGPT onnistui erittäin hyvin yksinkertaisen rajapinnan luonnissa vain neljällä kehotteella. Tässä yhteydessä pitää mainita, että maksan palvelusta, joten saan käyttööni aina uusimman mallin, jolloin eroa tietysti ilmaiseen malliin voi tulla melko paljonkin.
+Kaiken kaikkiaan ChatGPT onnistui erittäin hyvin yksinkertaisen rajapinnan luonnissa vain neljällä kehotteella. Ennen kaikkea olin iloisen yllättynyt sen kirjoittamista tyypitetyistä luokkarakenteista varauksille, olisin sitä pyytänyt heti toisena promptina ellei se olisi itse sitä tehnyt.
+
+Tässä yhteydessä pitää mainita, että maksan palvelusta, joten saan käyttööni aina uusimman mallin, jolloin eroa tietysti ilmaiseen malliin voi tulla melko paljonkin.
 
 ### 2. Mitä tekoäly teki huonosti?
 
